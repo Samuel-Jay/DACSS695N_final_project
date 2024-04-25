@@ -20,3 +20,22 @@ format:
     font-size: 80%
 editor: visual
 ---
+
+Spotify artist feature collaboration network analysis
+
+Introduction:
+
+This study is a network analysis that tries to identify, quantify and evaluate the relationship between follower counts of each artist's various collaborators vs the artist's own success in the charts. The presumed hypothesis is that popular artists will probably have many successful chart hits (hence why they're popular), therefore any successful/complete collaboration that another artist has with them for an album is likely to reach very high in an extremely competitive chart ranking.
+
+{r}
+library(moderndive)
+library(olsrr)
+library(tidyr)
+library(tidyverse)
+library(sna)
+library(igraph)
+library(network)
+library(infer)
+library(intergraph)
+
+These are the necessary packages
