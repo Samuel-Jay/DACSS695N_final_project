@@ -39,4 +39,12 @@ library(infer)
 library(intergraph)
 ```
 
-These are the necessary packages
+These are the necessary packages to do our network analysis.
+
+Charting high in an under-competitive ranking is not the same as ranking high in a highly competitive chart. So rank values should be weighted by the competitiveness. It is logical to assume that a ranking is competitive if: 1) that genre of music is highly popular, 2) the artists are highly popular, 3) due to 1 and 2 there would be a massive influx of many artists to that category/genre and also to that particular chart's song collection.
+
+Assessing the competitiveness in a numerical manner requires another metric involving popularity/follower counts of artists, and number of artists producing music in that genre.
+
+### Caveat:
+
+There is the possibility of high covariance between our Dependent Variable: chart hit score, and the Independent Variable: popularity-weighted degree of collaborations, since both use follower counts as a parameter in their metrics.
