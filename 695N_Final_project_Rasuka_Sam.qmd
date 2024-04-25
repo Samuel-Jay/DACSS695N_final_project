@@ -1,0 +1,22 @@
+---
+title: "Final Project"
+subtitle: "DACSS 695N Social Network Analysis"
+author: "Rasuka Shrestha/ Samuel Jayachandran"
+date: "April 25, 2024"
+format: 
+  html:
+    toc: true
+    toc-depth: 2
+    toc-title: Contents
+    toc-location: left
+    code-fold: false
+    html-math-method: katex
+    theme: flatly
+    smooth-scroll: true
+    link-external-icon: true
+    link-external-newwindow: true
+    citations-hover: true
+    footnotes-hover: true
+    font-size: 80%
+editor: visual
+---
