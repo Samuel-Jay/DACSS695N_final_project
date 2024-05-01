@@ -37,6 +37,7 @@ library(igraph)
 library(network)
 library(infer)
 library(intergraph)
+library(stringr)
 ```
 
 These are the necessary packages to do our network analysis.
@@ -48,3 +49,27 @@ Assessing the competitiveness in a numerical manner requires another metric invo
 ### Caveat:
 
 There is the possibility of high covariance between our Dependent Variable: chart hit score, and the Independent Variable: popularity-weighted degree of collaborations, since both use follower counts as a parameter in their metrics.
+
+#Data cleaning 
+```{r}
+edges <- read_csv("DACSS695N_final_project/edges.csv")
+edges<- na.omit (edges)
+head(edges)
+
+nodes <- read.csv("DACSS695N_final_project/nodes.csv")
+nodes <- na.omit (nodes)
+head(nodes)
+
+spotifyartistdata <- read.csv("DACSS695N_final_project/spotify_artist_data.csv")
+spotifyartistdata <- na.omit (spotifyartistdata)
+head(spotifyartistdata)
+
+#filtering it to 'hip hop' genre 
+hiphop <- nodes |>
+  filter(str_detect (genres, "hip hop"))
+
+# chart hits based on us
+hiphop <- nodes |>
+  filter(str_detect (chart_hits, "us"))
+```
+
