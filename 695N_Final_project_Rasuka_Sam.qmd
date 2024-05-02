@@ -50,7 +50,8 @@ Assessing the competitiveness in a numerical manner requires another metric invo
 
 There is the possibility of high covariance between our Dependent Variable: chart hit score, and the Independent Variable: popularity-weighted degree of collaborations, since both use follower counts as a parameter in their metrics.
 
-#Data cleaning 
+### Data cleaning:
+
 ```{r}
 edges <- read_csv("DACSS695N_final_project/edges.csv")
 edges<- na.omit (edges)
@@ -73,3 +74,10 @@ hiphop <- nodes |>
   filter(str_detect (chart_hits, "us"))
 ```
 
+## Considerations that were impractical or not possible:
+
+We were unable to get datasets where we could find the time of each collab between any combination of artists. So we cannot analyze temporal changes in relationships.
+
+With greater time, more access to Spotify APIs, we would be able to obtain time of each collaboration using the artists' ids, matching the name of the album/single (that the artists collaborated on) to the year that the particular album/single was released.
+
+Then we could make comparisons between the follower count of each of the artists before and after the collaboration was done.
