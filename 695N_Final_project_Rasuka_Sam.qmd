@@ -81,3 +81,112 @@ We were unable to get datasets where we could find the time of each collab betwe
 With greater time, more access to Spotify APIs, we would be able to obtain time of each collaboration using the artists' ids, matching the name of the album/single (that the artists collaborated on) to the year that the particular album/single was released.
 
 Then we could make comparisons between the follower count of each of the artists before and after the collaboration was done.
+
+```{r}
+library(intergraph)
+library(network)
+library(networkDynamic)
+library(ggnetwork)
+
+y7am <- which(hp_all_attrs[, "schoolyear"] <= 1987)
+hp3n1 <- graph_from_adjacency_matrix(as.matrix(hp3.am[y7am, y7am]))
+hp3n1 <- asNetwork(hp3n1)
+
+y67am <- which(hp_all_attrs[, "schoolyear"] <= 1988)
+hp3n2 <- graph_from_adjacency_matrix(as.matrix(hp3.am[y67am, y67am]))
+hp3n2 <- asNetwork(hp3n2)
+
+y567am <- which(hp_all_attrs[, "schoolyear"] <= 1989)
+hp3n3 <- graph_from_adjacency_matrix(as.matrix(hp3.am[y567am, y567am]))
+hp3n3 <- asNetwork(hp3n3)
+
+y4567am <- which(hp_all_attrs[, "schoolyear"] <= 1990)
+hp3n4 <- graph_from_adjacency_matrix(as.matrix(hp3.am[y4567am, y4567am]))
+hp3n4 <- asNetwork(hp3n4)
+
+y34567am <- which(hp_all_attrs[, "schoolyear"] <= 1991)
+hp3n5 <- graph_from_adjacency_matrix(as.matrix(hp3.am[y34567am, y34567am]))
+hp3n5 <- asNetwork(hp3n5)
+
+y234567am <- which(hp_all_attrs[, "schoolyear"] <= 1993)
+hp3n6 <- graph_from_adjacency_matrix(as.matrix(hp3.am[y234567am, y234567am]))
+hp3n6 <- asNetwork(hp3n6)
+
+y1234567am <- which(hp_all_attrs[, "schoolyear"] <= 1995)
+hp3n7 <- graph_from_adjacency_matrix(as.matrix(hp3.am[y1234567am, y1234567am]))
+hp3n7 <- asNetwork(hp3n7)
+
+hpnty <- networkDynamic(network.list = list(hp3n1, hp3n2, hp3n3, hp3n4, hp3n5, hp3n6, hp3n7),
+                        vertex.pid = "vertex.names",
+                        create.TEAs = T)
+
+hpnty <- get.networks(hpnty,
+                      start = 0,
+                      end = 7,
+                      time.increment = 1)
+
+par(mfrow = c(5, 2))
+
+plot(hpnty[[1]], main = "Oldest students only", 
+     vertex.col = "red", vertex.cex = 2)
+
+plot(hpnty[[2]], main="6th and 7th years only",
+     vertex.col = "red", vertex.cex = 2)
+
+plot(hpnty[[3]], main="5th, 6th and 7th years only",
+     vertex.col = "red", vertex.cex = 2)
+
+plot(hpnty[[4]], main="4th, 5th, 6th and 7th years only",
+     vertex.col = "red", vertex.cex = 2)
+
+plot(hpnty[[5]], main="3rd, 4th, 5th, 6th and 7th years only",
+     vertex.col = "red", vertex.cex = 2)
+
+plot(hpnty[[6]], main="Everyone but 1st years",
+     vertex.col = "red", vertex.cex = 2)
+
+plot(hpnty[[2]], main="All Hogwarts students",
+     vertex.col = "red", vertex.cex = 2)
+```
+
+```{r}
+par(mfrow = c(4, 2))
+
+locs <- network.layout.fruchtermanreingold(hpnty[[7]], layout.par = NULL)
+
+plot(hpnty[[1]], main = "Oldest students only", 
+     vertex.col = "red", vertex.cex = 2, coord = locs)
+
+plot(hpnty[[2]], main="6th and 7th years only",
+     vertex.col = "red", vertex.cex = 2, coord = locs)
+
+plot(hpnty[[3]], main="5th, 6th and 7th years only",
+     vertex.col = "red", vertex.cex = 2, coord = locs)
+
+plot(hpnty[[4]], main="4th, 5th, 6th and 7th years only",
+     vertex.col = "red", vertex.cex = 2, coord = locs)
+
+plot(hpnty[[5]], main="3rd, 4th, 5th, 6th and 7th years only",
+     vertex.col = "red", vertex.cex = 2, coord = locs)
+
+plot(hpnty[[6]], main="Everyone but 1st years",
+     vertex.col = "red", vertex.cex = 2, coord = locs)
+
+plot(hpnty[[2]], main="All Hogwarts students",
+     vertex.col = "red", vertex.cex = 2, coord = locs)
+```
+
+We can also use properties of the ego networks as predictors of other outcomes of interest. For example, let's try and predict the variable `HAPPY` using the features of the ego networks. Are individuals with larger ego networks happier? Does the composition of the ego network matter?
+
+`Happy` is coded as a 1 (very happy), 2 (pretty happy), 3 (not too happy). Let's add a label to the variable and reorder it to run from not happy to happy.
+
+```{r}
+
+V(hp3.ig)$color <- factor(hp3.ig$year, levels = c("violet", "grey", "blue", "green", "yellow", "orange", "red"), 
+                            labels = c("7th year", "6th year", "5th year", "4th year", "3rd year", "2nd year", "1st year"))
+
+plot(hp3.ig,
+     coords = locs,
+     layout = layout_with_mds,
+     vertex.color = V(hp3.ig)$color)
+```
