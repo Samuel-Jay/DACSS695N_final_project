@@ -39,7 +39,11 @@ library(network)
 library(infer)
 library(intergraph)
 library(stringr)
+<<<<<<< HEAD
 library(readr)
+=======
+library(ggnetwork)
+>>>>>>> 4fb82f16ef0a4aaf137a9fad8aead7afee994064
 ```
 
 These are the necessary packages to do our network analysis.
@@ -55,15 +59,19 @@ There is the possibility of high covariance between our Dependent Variable: char
 #Data cleaning
 
 ```{r}
+<<<<<<< HEAD
 edges <- read_csv("DACSS695N_final_project/edges.csv", show_col_types = FALSE)
+=======
+edges <- read_csv("edges.csv")
+>>>>>>> 4fb82f16ef0a4aaf137a9fad8aead7afee994064
 edges<- na.omit (edges)
 head(edges) #undirected, collaboration between artist A and artist B.
 
-nodes <- read.csv("DACSS695N_final_project/nodes.csv")
+nodes <- read.csv("nodes.csv")
 nodes <- na.omit (nodes)
 head(nodes)
 
-spotifyartistdata <- read.csv("DACSS695N_final_project/spotify_artist_data.csv")
+spotifyartistdata <- read.csv("spotify_artist_data.csv")
 spotifyartistdata <- na.omit (spotifyartistdata)
 head(spotifyartistdata)
 
@@ -82,9 +90,23 @@ hiphopmerged <- bind_rows(
   distinct(name, .keep_all = TRUE)
 head(hiphopmerged) 
 
+<<<<<<< HEAD
 hiphopmatrix <- as.matrix(hiphopmerged)
 head(hiphopmatrix)
 view(hiphopmatrix)
+=======
+# chart hits based on us
+hiphop <- nodes |>
+  filter(str_detect (chart_hits, "us"))
+
+#filtering it to 'hip hop' genre 
+pop <- nodes |>
+  filter(str_detect (genres, "pop"))
+
+# chart hits based on us
+pop <- nodes |>
+  filter(str_detect (chart_hits, "us"))
+>>>>>>> 4fb82f16ef0a4aaf137a9fad8aead7afee994064
 ```
 
 ## Considerations that were impractical or not possible:
@@ -95,6 +117,7 @@ With greater time, more access to Spotify APIs, we would be able to obtain time 
 
 Then we could make comparisons between the follower count of each of the artists before and after the collaboration was done.
 
+<<<<<<< HEAD
 ## calculate metrics for nodes, centrality
 ```{r}
 
@@ -121,3 +144,22 @@ plot(collab_graph, vertex.label = V(collab_graph)$name, layout = layout_with_fr)
 
 ```
 
+=======
+```{r}
+hiphop <- right_join(hiphop, edges, join_by(spotify_id == id_0))
+
+pop <- right_join(pop, edges, join_by(spotify_id == id_0))
+```
+
+```{r}
+
+hiphopel <- as.matrix(data.frame(hiphop[,1],hiphop[,7]))
+hiphopnet <- graph_from_edgelist(hiphopel, directed = FALSE)
+
+popel <- as.matrix(data.frame(pop[,1],pop[,7]))
+popnet <- graph_from_edgelist(popel, directed = FALSE)
+
+hiphopnet <- asNetwork(hiphopnet)
+popnet <- asNetwork(popnet)
+```
+>>>>>>> 4fb82f16ef0a4aaf137a9fad8aead7afee994064
