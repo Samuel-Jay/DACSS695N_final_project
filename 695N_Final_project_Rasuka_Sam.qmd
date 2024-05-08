@@ -75,10 +75,18 @@ pop <- pop %>% filter(((str_detect(genres.x, "pop")) | (str_detect(genres.y, "po
 
 # THIS IS WHERE WE FILTER DUPLICATE EDGES AND POSSIBLY TRY TO GET JUST ONE ROW FOR EACH ARTIST NAME
 
+```
+
+```{r}
+
 hiphop_collab_graph <- graph_from_data_frame(hiphop, directed = FALSE)
 pop_collab_graph <- graph_from_data_frame(pop, directed = FALSE)
 
+# EDIT THE FOLLOWING: 
+# V(hiphop_collab_graph)$name <- hiphop$name??
+# V(hiphop_collab_graph)$followers <- hiphop$followers??
 ```
+
 ## Considerations that were impractical or not possible:
 
 We were unable to get datasets where we could find the time of each collab between any combination of artists. So we cannot analyze temporal changes in relationships.
@@ -87,8 +95,9 @@ With greater time, more access to Spotify APIs, we would be able to obtain time 
 
 Then we could make comparisons between the follower count of each of the artists before and after the collaboration was done.
 
-
 ```{r}
+
+# HOW TO FIX MARGINS AND SPACING BETWEEN NODES:
 # par(mar = c( , , , ,)
 plot(hiphop_collab_graph,
     layout = layout_nicely)
