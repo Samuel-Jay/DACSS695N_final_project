@@ -20,6 +20,7 @@ format:
     font-size: 80%
 editor: visual
 ---
+
 ##Note: modify the research question, specify genres (HP = hiphop & pop) to a different name, 'us' based chart hits, and the year(2022).
 
 # Spotify artist feature collaboration network analysis
@@ -39,11 +40,8 @@ library(network)
 library(infer)
 library(intergraph)
 library(stringr)
-# <<<<<<< HEAD
 library(readr)
-# =======
 library(ggnetwork)
-# >>>>>>> 4fb82f16ef0a4aaf137a9fad8aead7afee994064
 ```
 
 These are the necessary packages to do our network analysis.
@@ -59,11 +57,7 @@ There is the possibility of high covariance between our Dependent Variable: char
 #Data cleaning
 
 ```{r}
-# <<<<<<< HEAD
-# edges <- read_csv("DACSS695N_final_project/edges.csv", show_col_types = FALSE)
-# =======
 edges <- read_csv("edges.csv")
-# >>>>>>> 4fb82f16ef0a4aaf137a9fad8aead7afee994064
 edges<- na.omit (edges)
 head(edges) #undirected, collaboration between artist A and artist B.
 
@@ -74,26 +68,9 @@ head(nodes)
 spotifyartistdata <- read.csv("spotify_artist_data.csv")
 spotifyartistdata <- na.omit (spotifyartistdata)
 head(spotifyartistdata)
-
-# # filtering 'hiphop' & 'pop', 'en', removing [] and 0.  
-# HP <- nodes |> #Hiphop Pop
-#   mutate(genres = gsub("\\[|\\]", "", genres)) |>
-#   filter(!chart_hits == 0) |>
-#   filter(str_detect(genres, "hip hop | pop") & str_detect(chart_hits, "us"))
-# head(HP)
 ```
+
 ```{r}
-# hiphopmerged <- bind_rows(
-#   merge(edges, HP, by.x = "id_0", by.y = "spotify_id", all.x = TRUE), 
-#   merge(edges, HP, by.x = "id_1", by.y = "spotify_id", all.x = TRUE)) |>
-#   distinct(name, .keep_all = TRUE)
-# head(hiphopmerged) 
-# 
-# <<<<<<< HEAD
-# hiphopmatrix <- as.matrix(hiphopmerged)
-# head(hiphopmatrix)
-# view(hiphopmatrix)
-# =======
 # chart hits based on us
 hiphop <- nodes |>
   filter(str_detect (chart_hits, "us"))
@@ -105,7 +82,6 @@ pop <- nodes |>
 # chart hits based on us
 pop <- nodes |>
   filter(str_detect (chart_hits, "us"))
-# >>>>>>> 4fb82f16ef0a4aaf137a9fad8aead7afee994064
 ```
 
 ## Considerations that were impractical or not possible:
@@ -115,15 +91,6 @@ We were unable to get datasets where we could find the time of each collab betwe
 With greater time, more access to Spotify APIs, we would be able to obtain time of each collaboration using the artists' ids, matching the name of the album/single (that the artists collaborated on) to the year that the particular album/single was released.
 
 Then we could make comparisons between the follower count of each of the artists before and after the collaboration was done.
-
-```{r}
-# # Create a graph object from the collaboration data
-# collab_graph <- graph_from_data_frame(d = HP, directed = FALSE)
-# head(collab_graph)
-# 
-# # Visualize the collaboration network
-# plot(collab_graph, vertex.label = V(collab_graph)$name, layout = layout_with_fr)
-```
 
 ```{r}
 
@@ -154,4 +121,30 @@ V(hiphopnet)$followers = hiphop$followers
 plot(hiphopnet,
      layout = layout_nicely(hiphopnet))
 ```
->>>>>>> 4fb82f16ef0a4aaf137a9fad8aead7afee994064
+
+```{r}
+edges <- read_csv("edges.csv", show_col_types = FALSE)
+
+# filtering 'hiphop' & 'pop', 'en', removing [] and 0.
+HP <- nodes |> #Hiphop Pop
+  mutate(genres = gsub("\\[|\\]", "", genres)) |>
+  filter(!chart_hits == 0) |>
+  filter(str_detect(genres, "hip hop | pop") & str_detect(chart_hits, "us"))
+head(HP)
+
+hiphopmerged <- bind_rows(
+  merge(edges, HP, by.x = "id_0", by.y = "spotify_id", all.x = TRUE),
+  merge(edges, HP, by.x = "id_1", by.y = "spotify_id", all.x = TRUE)) |>
+  distinct(name, .keep_all = TRUE)
+head(hiphopmerged)
+
+hiphopmatrix <- as.matrix(hiphopmerged)
+head(hiphopmatrix)
+
+# Create a graph object from the collaboration data
+collab_graph <- graph_from_data_frame(d = HP, directed = FALSE)
+head(collab_graph)
+
+# Visualize the collaboration network
+plot(collab_graph, vertex.label = V(collab_graph)$name, layout = layout_with_fr)
+```
