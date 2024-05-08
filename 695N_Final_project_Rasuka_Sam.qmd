@@ -92,19 +92,31 @@ With greater time, more access to Spotify APIs, we would be able to obtain time 
 Then we could make comparisons between the follower count of each of the artists before and after the collaboration was done.
 
 ```{r}
-hiphop <- right_join(hiphop, edges, join_by(spotify_id == id_0))
 
-pop <- right_join(pop, edges, join_by(spotify_id == id_0))
+hiphopel <- edges %>% filter(edges$id_0 %in% hiphop$spotify_id &
+                                  edges$id_1 %in% hiphop$spotify_id)
+hiphop <- right_join(hiphop, hiphopel, join_by(spotify_id == id_0))
+hiphopel <- as.matrix(hiphopel)
+hiphopnet <- graph_from_edgelist(hiphopel, directed = FALSE)
+
+popel <- edges %>% filter(edges$id_0 %in% pop$spotify_id &
+                                  edges$id_1 %in% pop$spotify_id)
+pop <- right_join(pop, popel, join_by(spotify_id == id_0))
+popel <- as.matrix(popel)
+popnet <- graph_from_edgelist(popel, directed = FALSE)
+
+hiphopnl <- as.list(V(hiphopnet)$name)
+hiphop <- hiphop %>% subset(spotify_id %in% hiphopnl)
 ```
 
 ```{r}
+V(hiphopnet)$name = hiphop$name
+V(hiphopnet)$followers = hiphop$followers
+```
 
-hiphopel <- as.matrix(data.frame(hiphop[,1],hiphop[,7]))
-hiphopnet <- graph_from_edgelist(hiphopel, directed = FALSE)
+```{r}
+# par(mar=c(10, 10, 10))
 
-popel <- as.matrix(data.frame(pop[,1],pop[,7]))
-popnet <- graph_from_edgelist(popel, directed = FALSE)
-
-hiphopnet <- asNetwork(hiphopnet)
-popnet <- asNetwork(popnet)
+plot(hiphopnet,
+     layout = layout_nicely(hiphopnet))
 ```
