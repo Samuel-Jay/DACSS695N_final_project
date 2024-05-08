@@ -100,8 +100,10 @@ Then we could make comparisons between the follower count of each of the artists
 # HOW TO FIX MARGINS AND SPACING BETWEEN NODES:
 # par(mar = c( , , , ,)
 plot(hiphop_collab_graph,
+     vertex.label = NA,
     layout = layout_nicely)
 
 plot(pop_collab_graph,
+     vertex.label = NA,
     layout = layout_with_fr)
 ```
