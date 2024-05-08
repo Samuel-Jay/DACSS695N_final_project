@@ -1,5 +1,5 @@
 ---
-title: "Final Project"
+title: "Spotify Artist Feature Collaboration Network Analysis"
 subtitle: "DACSS 695N Social Network Analysis"
 author: "Rasuka Shrestha/ Samuel Jayachandran"
 date: "April 25, 2024"
@@ -21,6 +21,8 @@ format:
 editor: visual
 ---
 
+##Note: modify the research question, specify genres (HP = hiphop & pop) to a different name, 'us' based chart hits, and the year(2022).
+
 # Spotify artist feature collaboration network analysis
 
 ## Introduction:
@@ -38,6 +40,8 @@ library(network)
 library(infer)
 library(intergraph)
 library(stringr)
+library(readr)
+library(ggnetwork)
 ```
 
 These are the necessary packages to do our network analysis.
@@ -55,21 +59,60 @@ There is the possibility of high covariance between our Dependent Variable: char
 ```{r}
 edges <- read_csv("edges.csv")
 edges<- na.omit (edges)
-head(edges)
 
 nodes <- read.csv("nodes.csv")
 nodes <- na.omit (nodes)
-head(nodes)
 
+<<<<<<< HEAD
 spotifyartistdata <- read.csv("spotify_artist_data.csv")
 spotifyartistdata <- na.omit (spotifyartistdata)
 head(spotifyartistdata)
+=======
+hiphop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
+hiphop <- left_join(hiphop, nodes, by = join_by(id_1 == spotify_id))
+hiphop <- hiphop %>% filter(((str_detect(genres.x, "hip hop")) | (str_detect(genres.y, "hip hop"))) &
+                            ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
+>>>>>>> 6fc56b727656699289a7306e2af2421fa658102c
 
-#filtering it to 'hip hop' genre 
-hiphop <- nodes |>
-  filter(str_detect (genres, "hip hop"))
+pop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
+pop <- left_join(pop, nodes, by = join_by(id_1 == spotify_id))
+pop <- pop %>% filter(((str_detect(genres.x, "pop")) | (str_detect(genres.y, "pop"))) &
+                            ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
 
-# chart hits based on us
-hiphop <- nodes |>
-  filter(str_detect (chart_hits, "us"))
+# THIS IS WHERE WE FILTER DUPLICATE EDGES AND POSSIBLY TRY TO GET JUST ONE ROW FOR EACH ARTIST NAME
+
 ```
+<<<<<<< HEAD
+=======
+
+```{r}
+
+hiphop_collab_graph <- graph_from_data_frame(hiphop, directed = FALSE)
+pop_collab_graph <- graph_from_data_frame(pop, directed = FALSE)
+
+# EDIT THE FOLLOWING: 
+# V(hiphop_collab_graph)$name <- hiphop$name??
+# V(hiphop_collab_graph)$followers <- hiphop$followers??
+```
+
+## Considerations that were impractical or not possible:
+
+We were unable to get datasets where we could find the time of each collab between any combination of artists. So we cannot analyze temporal changes in relationships.
+
+With greater time, more access to Spotify APIs, we would be able to obtain time of each collaboration using the artists' ids, matching the name of the album/single (that the artists collaborated on) to the year that the particular album/single was released.
+
+Then we could make comparisons between the follower count of each of the artists before and after the collaboration was done.
+
+```{r}
+
+# HOW TO FIX MARGINS AND SPACING BETWEEN NODES:
+# par(mar = c( , , , ,)
+plot(hiphop_collab_graph,
+     vertex.label = NA,
+    layout = layout_nicely)
+
+plot(pop_collab_graph,
+     vertex.label = NA,
+    layout = layout_with_fr)
+```
+>>>>>>> 6fc56b727656699289a7306e2af2421fa658102c
