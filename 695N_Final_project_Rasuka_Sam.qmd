@@ -63,16 +63,15 @@ edges<- na.omit (edges)
 nodes <- read.csv("nodes.csv")
 nodes <- na.omit (nodes)
 
-<<<<<<< HEAD
 spotifyartistdata <- read.csv("spotify_artist_data.csv")
 spotifyartistdata <- na.omit (spotifyartistdata)
-head(spotifyartistdata)
-=======
+
+full_net <- graph_from_edgelist(as.matrix(edges))
+
 hiphop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
 hiphop <- left_join(hiphop, nodes, by = join_by(id_1 == spotify_id))
 hiphop <- hiphop %>% filter(((str_detect(genres.x, "hip hop")) | (str_detect(genres.y, "hip hop"))) &
                             ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
->>>>>>> 6fc56b727656699289a7306e2af2421fa658102c
 
 pop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
 pop <- left_join(pop, nodes, by = join_by(id_1 == spotify_id))
@@ -80,20 +79,35 @@ pop <- pop %>% filter(((str_detect(genres.x, "pop")) | (str_detect(genres.y, "po
                             ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
 
 # THIS IS WHERE WE FILTER DUPLICATE EDGES AND POSSIBLY TRY TO GET JUST ONE ROW FOR EACH ARTIST NAME
+hiphop1 <- hiphop %>% distinct(id_0, .keep_all = TRUE)
+hiphop2 <- hiphop %>% distinct(id_1, .keep_all = TRUE)
+hiphop <- anti_join(hiphop1, hiphop2, by = join_by(id_0))
+
+pop1 <- pop %>% distinct(id_0, .keep_all = TRUE)
+pop2 <- pop %>% distinct(id_1, .keep_all = TRUE)
+pop <- anti_join(pop1, pop2, by = join_by(id_0))
 
 ```
-<<<<<<< HEAD
-=======
+
 
 ```{r}
 
-hiphop_collab_graph <- graph_from_data_frame(hiphop, directed = FALSE)
-pop_collab_graph <- graph_from_data_frame(pop, directed = FALSE)
+mean(degree(full_net))
 
-# EDIT THE FOLLOWING: 
-# V(hiphop_collab_graph)$name <- hiphop$name??
-# V(hiphop_collab_graph)$followers <- hiphop$followers??
+hiphop_collab_graph <- graph_from_data_frame(hiphop)
+pop_collab_graph <- graph_from_data_frame(pop)
+mean(degree(hiphop_collab_graph))
+mean(degree(pop_collab_graph))
+
+hiphopnames <- hiphop %>% filter(hiphop$id_0 %in% V(hiphop_collab_graph)$name &
+                                   hiphop$id_1 %in% V(hiphop_collab_graph)$name)
+
 ```
+
+```{r}
+
+```
+
 
 ## Considerations that were impractical or not possible:
 
@@ -115,4 +129,5 @@ plot(pop_collab_graph,
      vertex.label = NA,
     layout = layout_with_fr)
 ```
->>>>>>> 6fc56b727656699289a7306e2af2421fa658102c
+
+> > > > > > > 6fc56b727656699289a7306e2af2421fa658102c
