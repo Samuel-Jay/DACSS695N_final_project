@@ -130,4 +130,3 @@ plot(pop_collab_graph,
     layout = layout_with_fr)
 ```
 
-> > > > > > > 6fc56b727656699289a7306e2af2421fa658102c
