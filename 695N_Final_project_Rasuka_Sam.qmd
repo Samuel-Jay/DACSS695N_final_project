@@ -107,6 +107,10 @@ plot(genre_net,rescale = FALSE,
      vertex.label.color = "black",
      layout = layout_nicely)
 
+plot(genre_net,
+     vertex.label = NA,
+     layout = layout_as_bipartite(genre_net, types = V(genre_net)$genre))
+
 ```
 
 ### Analysis here:
