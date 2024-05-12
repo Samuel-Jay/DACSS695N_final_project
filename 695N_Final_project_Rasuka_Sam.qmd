@@ -118,7 +118,11 @@ plot(genre_net,
 ## Python-processed adjacency matrix of artist ego-networks analyzed here:
 
 ```{r}
-write_csv()
+
+HPexp <- data.frame(HP[1], HP[2], HP[3], HP[5])
+head(HPexp)
+
+write.csv(HPexp, "HPedgelistprep.csv")
 ```
 
 ## Considerations that were impractical or not possible:
