@@ -21,8 +21,6 @@ format:
 editor: visual
 ---
 
-##Note: modify the research question, specify genres (HP = hiphop & pop) to a different name, 'us' based chart hits, and the year(2022).
-
 # Spotify artist feature collaboration network analysis
 
 ## Introduction:
@@ -50,83 +48,79 @@ Charting high in an under-competitive ranking is not the same as ranking high in
 
 Assessing the competitiveness in a numerical manner requires another metric involving popularity/follower counts of artists, and number of artists producing music in that genre.
 
-### Caveat:
-
-There is the possibility of high covariance between our Dependent Variable: chart hit score, and the Independent Variable: popularity-weighted degree of collaborations, since both use follower counts as a parameter in their metrics.
-
-#Data cleaning
+### Data cleaning
 
 ```{r}
 edges <- read_csv("edges.csv")
-edges<- na.omit (edges)
+edges <- na.omit (edges)
 
 nodes <- read.csv("nodes.csv")
 nodes <- na.omit (nodes)
+nodes <- nodes %>% distinct(spotify_id, .keep_all = TRUE)
 
-spotifyartistdata <- read.csv("spotify_artist_data.csv")
-spotifyartistdata <- na.omit (spotifyartistdata)
+# hiphop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
+# hiphop <- left_join(hiphop, nodes, by = join_by(id_1 == spotify_id))
+# hiphop <- hiphop %>% filter(((str_detect(genres.x, "hip hop")) | (str_detect(genres.y, "hip hop"))) &
+#                             ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
 
+# pop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
+# pop <- left_join(pop, nodes, by = join_by(id_1 == spotify_id))
+# pop <- pop %>% filter(((str_detect(genres.x, "pop")) | (str_detect(genres.y, "pop"))) &
+#                             ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
+
+HP <- nodes %>% filter(((str_detect(genres, "hip hop")) | str_detect(genres, "pop")) & (str_detect(chart_hits, "us")))
+
+```
+
+### First problem:
+
+```{r}
 full_net <- graph_from_edgelist(as.matrix(edges))
-
-hiphop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
-hiphop <- left_join(hiphop, nodes, by = join_by(id_1 == spotify_id))
-hiphop <- hiphop %>% filter(((str_detect(genres.x, "hip hop")) | (str_detect(genres.y, "hip hop"))) &
-                            ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
-
-pop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
-pop <- left_join(pop, nodes, by = join_by(id_1 == spotify_id))
-pop <- pop %>% filter(((str_detect(genres.x, "pop")) | (str_detect(genres.y, "pop"))) &
-                            ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
-
-# THIS IS WHERE WE FILTER DUPLICATE EDGES AND POSSIBLY TRY TO GET JUST ONE ROW FOR EACH ARTIST NAME
-hiphop1 <- hiphop %>% distinct(id_0, .keep_all = TRUE)
-hiphop2 <- hiphop %>% distinct(id_1, .keep_all = TRUE)
-hiphop <- anti_join(hiphop1, hiphop2, by = join_by(id_0))
-
-pop1 <- pop %>% distinct(id_0, .keep_all = TRUE)
-pop2 <- pop %>% distinct(id_1, .keep_all = TRUE)
-pop <- anti_join(pop1, pop2, by = join_by(id_0))
-
-```
-
-
-```{r}
-
 mean(degree(full_net))
+```
 
-hiphop_collab_graph <- graph_from_data_frame(hiphop)
-pop_collab_graph <- graph_from_data_frame(pop)
-mean(degree(hiphop_collab_graph))
-mean(degree(pop_collab_graph))
+There are 153k nodes/artists in the network and 300k collaborations between them, the average degree of the network from the edgelist should be less than 2 (it says 3.918 up there). The node attribute list has 156k entries, don't know if they are duplicates or artists who just didn't collaborate with anyone.
 
-hiphopnames <- hiphop %>% filter(hiphop$id_0 %in% V(hiphop_collab_graph)$name &
-                                   hiphop$id_1 %in% V(hiphop_collab_graph)$name)
+## Converting to 2-mode network to compare in-genre collab rate vs cross-genre collab:
 
+We will now take the subgenres of hip hop and pop and look at which artists belong to which subgenres. Then we can compare the collaboration within hiphop vs between hiphop and pop. We can also then compare the popularity of in-genre collaborators vs cross-genre collaborators.
+
+```{r}
+genre_el <- as.matrix(data.frame(HP[2], HP[5], HP[3]))
+genre_net <- graph_from_data_frame(genre_el, directed = FALSE)
+
+V(genre_net)$genre <- ifelse(str_detect(genre_el[2], "hip hop"), TRUE, FALSE)
+
+genre_net
 ```
 
 ```{r}
+# HOW TO FIX MARGINS AND SPACING BETWEEN NODES:
+
+V(genre_net)$color <- ifelse(V(genre_net)$genre, "pink", "yellow")
+V(genre_net)$shape <- ifelse(V(genre_net)$genre, "circle", "square")
+E(genre_net)$color <- "lightgray"
+
+plot(genre_net,rescale = FALSE,
+     ylim=c(100,400), xlim=c(-1700,2400), asp = 0, # Play around with the ylim and xlim numbers here for aesthetics please
+     vertex.label = NA,
+     vertex.label.color = "black",
+     layout = layout_nicely)
 
 ```
 
+### Analysis here:
+
+## Python-processed adjacency matrix of artist ego-networks analyzed here:
+
+```{r}
+write_csv()
+```
 
 ## Considerations that were impractical or not possible:
 
-We were unable to get datasets where we could find the time of each collab between any combination of artists. So we cannot analyze temporal changes in relationships.
+We were unable to get datasets where we could find the time of each collab between any combination of artists. So we cannot analyze temporal changes in relationships, how artist popularity changed with various collaborations etc.,.
 
 With greater time, more access to Spotify APIs, we would be able to obtain time of each collaboration using the artists' ids, matching the name of the album/single (that the artists collaborated on) to the year that the particular album/single was released.
 
-Then we could make comparisons between the follower count of each of the artists before and after the collaboration was done.
-
-```{r}
-
-# HOW TO FIX MARGINS AND SPACING BETWEEN NODES:
-# par(mar = c( , , , ,)
-plot(hiphop_collab_graph,
-     vertex.label = NA,
-    layout = layout_nicely)
-
-plot(pop_collab_graph,
-     vertex.label = NA,
-    layout = layout_with_fr)
-```
-
+Then we could make comparisons between the follower count of each of the artists before and after the collaboration was done. This could be done with networkDynamic package and viewing the network before and after each new edge is formed between 2 artists.
