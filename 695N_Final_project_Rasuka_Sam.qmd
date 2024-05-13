@@ -81,70 +81,70 @@ mean(degree(full_net))
 
 There are 153k nodes/artists in the network and 300k collaborations between them, the average degree of the network from the edgelist should be less than 2 (it says 3.918 up there). The node attribute list has 156k entries, don't know if they are duplicates or artists who just didn't collaborate with anyone.
 
-## Converting to 2-mode network to compare in-genre collab rate vs cross-genre collab:
-
-We will now take the subgenres of hip hop and pop and look at which artists belong to which subgenres. Then we can compare the collaboration within hiphop vs between hiphop and pop. We can also then compare the popularity of in-genre collaborators vs cross-genre collaborators.
-
-```{r}
-genre_el <- as.matrix(data.frame(HP[2], HP[5], HP[3]))
-genre_net <- graph_from_data_frame(genre_el, directed = FALSE)
-
-V(genre_net)$genre <- ifelse(str_detect(genre_el[2], "hip hop"), TRUE, FALSE)
-
-genre_net
-```
-
-```{r}
-# HOW TO FIX MARGINS AND SPACING BETWEEN NODES:
-
-V(genre_net)$color <- ifelse(V(genre_net)$genre, "pink", "yellow")
-V(genre_net)$shape <- ifelse(V(genre_net)$genre, "circle", "square")
-E(genre_net)$color <- "lightgray"
-
-plot(genre_net,
-     rescale = TRUE,
-     ylim=c(100,400), xlim=c(-1700,2400), asp = 0, # Play around with the ylim and xlim numbers here for aesthetics please
-     vertex.label = NA,
-     vertex.label.color = "black",
-     layout = layout_nicely)
-
-plot(genre_net,
-     vertex.label = NA,
-     layout = layout_as_bipartite(genre_net, types = V(genre_net)$genre))
-
-```
-
 ### Analysis here:
 
 ## Python-processed adjacency matrix of each artist analyzed here:
 
 ```{r}
+edges <- edges %>% filter((edges$id_0 %in% HP$spotify_id) &
+                            (edges$id_1 %in% HP$spotify_id))
 
-HPexp <- data.frame(HP[1], HP[2], HP[3], HP[5])
-head(HPexp)
+# all_names <- unique(c(collaborations$from, collaborations$to))
+# 
+# # Create an empty adjacency matrix
+# adj_matrix <- matrix(0, nrow = length(all_names), ncol = length(all_names), dimnames = list(all_names, all_names))
+# 
+# # Fill in the adjacency matrix based on collaborations
+# for (i in 1:nrow(collaborations)) {
+#   from <- collaborations$from[i]
+#   to <- collaborations$to[i]
+#   adj_matrix[from, to] <- 1
+#   adj_matrix[to, from] <- 1 # Uncomment if collaboration is bidirectional
+# }
+# 
+# # Print the adjacency matrix
+# print(adj_matrix)
 
-write.csv(HPexp, "HPedgelistprep.csv")
+# Get unique collaborations and their frequencies
+unique_collaborations <- table(paste(edges$id_0, edges$id_1))
+
+# Get unique names of individuals
+all_names <- unique(c(edges$id_0, edges$id_1))
+
+# Create an empty adjacency matrix
+adj_matrix <- matrix(0, nrow = length(all_names), ncol = length(all_names), dimnames = list(all_names, all_names))
+
+# Fill in the adjacency matrix with collaboration frequencies
+for (collab in names(unique_collaborations)) {
+  names <- unlist(strsplit(collab, " "))
+  from <- names[1]
+  to <- names[2]
+  adj_matrix[from, to] <- unique_collaborations[collab]
+  adj_matrix[to, from] <- unique_collaborations[collab]
+}
+
+# Print the adjacency matrix
+# print(adj_matrix)
 ```
 
 ```{r}
-HP_alt_dat <- read.csv('HPalter_dat.csv')
-HP_alt_dat <- na.omit(HP_alt_dat)
-
-HPel <- read.csv('HPedgelist.csv')
-HPel <- na.omit(HPel)
+collab_graph <- graph_from_adjacency_matrix(adj_matrix, mode = "undirected",
+                                            diag = FALSE)
 ```
 
 ```{r}
-hpnet <- graph_from_data_frame(as.matrix(HP_alt_dat), directed = FALSE,
-                               vertices = HP_alt_dat)
+HP <- HP %>% filter(HP$spotify_id %in% all_names)
 
-adj <- as_adjacency_matrix(hpnet)
+V(collab_graph)$name <- HP$name
+V(collab_graph)$followers <- HP$followers
 ```
 
 ```{r}
-V(hpnet)$name <- HP_alt_dat$alter_name
-
-mean(degree(hpnet))
+plot(collab_graph, 
+     vertex.size = 0.25,
+     vertex.label.cex = 0.25,
+     layout = layout_with_fr(collab_graph) # consider layout_with_drl or layout_with_spectral
+     )
 ```
 
 ## Considerations that were impractical or not possible:
