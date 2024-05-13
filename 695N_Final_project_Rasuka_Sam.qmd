@@ -101,7 +101,8 @@ V(genre_net)$color <- ifelse(V(genre_net)$genre, "pink", "yellow")
 V(genre_net)$shape <- ifelse(V(genre_net)$genre, "circle", "square")
 E(genre_net)$color <- "lightgray"
 
-plot(genre_net,rescale = FALSE,
+plot(genre_net,
+     rescale = TRUE,
      ylim=c(100,400), xlim=c(-1700,2400), asp = 0, # Play around with the ylim and xlim numbers here for aesthetics please
      vertex.label = NA,
      vertex.label.color = "black",
@@ -115,7 +116,7 @@ plot(genre_net,
 
 ### Analysis here:
 
-## Python-processed adjacency matrix of artist ego-networks analyzed here:
+## Python-processed adjacency matrix of each artist analyzed here:
 
 ```{r}
 
@@ -123,6 +124,18 @@ HPexp <- data.frame(HP[1], HP[2], HP[3], HP[5])
 head(HPexp)
 
 write.csv(HPexp, "HPedgelistprep.csv")
+```
+
+```{r}
+HP_alt_dat <- read.csv('HPalter_dat.csv')
+HP_alt_dat <- na.omit(HP_alt_dat)
+
+HPel <- read.csv('HPedgelist.csv')
+HPel <- na.omit(HPel)
+```
+
+```{r}
+hpnet <- graph_from_data_frame(as.matrix(HP_alt_dat), directed = FALSE)
 ```
 
 ## Considerations that were impractical or not possible:
