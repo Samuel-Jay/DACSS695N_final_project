@@ -149,19 +149,35 @@ plot(collab_graph,
 ```
 
 ```{r}
-degree_centralities <- list(length(HP$spotify_id))
+degree_centralities <- c(length(HP$spotify_id))
 
 for (i in 1:nrow(HP)) {
     degree_centralities[i] <- degree(collab_graph, v = V(collab_graph)[i], loops = FALSE)
   }
 followers <- V(collab_graph)$followers
 degree_centralities <- as.matrix(degree_centralities)
-dat <- data.frame(degree_centralities, followers)
+dat1 <- data.frame(degree_centralities, followers)
 
-relation <- lm(followers ~ dat[1], data = dat)
+relation1 <- lm(followers ~ degree_centralities, data = dat1)
 
-summary(relation)
+summary(relation1)
 ```
+```{r}
+neighbors_followcounts <- c(length(HP$spotify_id))
+
+for (i in 1:nrow(HP)) {
+  neighbors_followcounts[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$followers)
+}
+followers <- V(collab_graph)$followers
+neighbors_followcounts <- as.matrix(neighbors_followcounts)
+dat2 <- data.frame(neighbors_followcounts, followers)
+
+relation2 <- lm(followers ~ neighbors_followcounts, data = dat2)
+
+summary(relation2)
+```
+
+
 
 ## Considerations that were impractical or not possible:
 
