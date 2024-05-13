@@ -82,8 +82,6 @@ mean(degree(full_net))
 
 There are 153k nodes/artists in the network and 300k collaborations between them, the average degree of the network from the edgelist should be less than 2 (it says 3.918 up there). The node attribute list has 156k entries, don't know if they are duplicates or artists who just didn't collaborate with anyone.
 
-### Analysis here:
-
 ## Adjacency matrix of each artist analyzed here:
 
 ```{r}
@@ -176,6 +174,35 @@ dat2 <- data.frame(neighbors_followcounts, followers)
 relation2 <- lm(followers ~ neighbors_followcounts, data = dat2)
 
 summary(relation2)
+```
+
+```{r}
+V(collab_graph)$popularity <- HP$popularity
+
+summary(lm(popularity ~ followers, data = HP))
+```
+
+```{r}
+popularity <- V(collab_graph)$popularity
+neighbors_popularity <- c(length(HP$spotify_id))
+
+for (i in 1:nrow(HP)) {
+  neighbors_popularity[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$popularity)
+}
+neighbors_popularity <- as.matrix(neighbors_popularity)
+dat3 <- data.frame(neighbors_popularity, popularity)
+
+relation3 <- lm(popularity ~ neighbors_popularity, data = dat3)
+
+summary(relation3)
+```
+
+```{r}
+dat4 <- data.frame(degree_centralities, popularity)
+
+relation4 <- lm(popularity ~ degree_centralities, data = dat4)
+
+summary(relation4)
 ```
 
 ## Considerations that were impractical or not possible:
