@@ -205,6 +205,48 @@ relation4 <- lm(popularity ~ degree_centralities, data = dat4)
 summary(relation4)
 ```
 
+## Cross-genre vs in-genre collaboration:
+
+```{r}
+library(car)
+
+cols <- recode(HP$genres, 
+               as.factor = F, "'[A-Z]^ hip hop' = 'yellow'; NA = NA; else = 'orange'")
+
+table(HP$genres, cols)
+
+artist_collab_eb <- cluster_edge_betweenness(graph = collab_graph)
+
+plot(artist_collab_eb, collab_graph, 
+     col = cols, vertex.label = NA, layout = layout_with_drl, 
+     main = "Genre Mapped onto Communities")
+```
+
+```{r}
+proportion_function <- function(communities, attribute){ 
+  
+  # Arguments:
+  # communities: vector of community membership
+  # attribute: attribute vector
+
+  # Here we calculate the proportion that fall into each category 
+  # found in attribute. We first do a table and then find the proportion 
+  # in each category. This is done for each community (using tapply 
+  # over the communities).
+  
+  dat <- tapply(factor(attribute), communities, 
+             function(x) {y <-  table(x); y / sum(y)})
+
+  # We then output it as a matrix using do.call
+  return(do.call(rbind, dat))
+}
+```
+
+```{r}
+mems_eb <- membership(collab_graph)
+proportion_function(communities = mems_eb, attribute = HP$genre)
+```
+
 ## Considerations that were impractical or not possible:
 
 We were unable to get datasets where we could find the time of each collab between any combination of artists. So we cannot analyze temporal changes in relationships, how artist popularity changed with various collaborations etc.,.
