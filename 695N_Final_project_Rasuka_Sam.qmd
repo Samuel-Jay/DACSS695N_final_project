@@ -68,7 +68,8 @@ nodes <- nodes %>% distinct(spotify_id, .keep_all = TRUE)
 # pop <- pop %>% filter(((str_detect(genres.x, "pop")) | (str_detect(genres.y, "pop"))) &
 #                             ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
 
-HP <- nodes %>% filter(((str_detect(genres, "hip hop")) | str_detect(genres, "pop")) & (str_detect(chart_hits, "us")))
+HP <- nodes %>% filter(((str_detect(genres, "hip hop"))) & (str_detect(chart_hits, "us")))
+HP <- HP %>% filter(followers > 5000000)
 
 ```
 
@@ -81,66 +82,9 @@ mean(degree(full_net))
 
 There are 153k nodes/artists in the network and 300k collaborations between them, the average degree of the network from the edgelist should be less than 2 (it says 3.918 up there). The node attribute list has 156k entries, don't know if they are duplicates or artists who just didn't collaborate with anyone.
 
-<<<<<<< HEAD
-## Converting to 2-mode network to compare in-genre collab rate vs cross-genre collab:
-
-We will now take the subgenres of hip hop and pop and look at which artists belong to which subgenres. Then we can compare the collaboration within hiphop vs between hiphop and pop. We can also then compare the popularity of in-genre collaborators vs cross-genre collaborators.
-
-```{r}
-genre_el <- as.matrix(data.frame(HP[2], HP[5], HP[3]))
-genre_net <- graph_from_data_frame(genre_el, directed = FALSE)
-
-V(genre_net)$genre <- ifelse(str_detect(genre_el[2], "hip hop"), TRUE, FALSE)
-
-genre_net
-```
-
-```{r}
-# HOW TO FIX MARGINS AND SPACING BETWEEN NODES:
-
-par(mar = c(,,,,))
-V(genre_net)$color <- ifelse(V(genre_net)$genre, "pink", "yellow")
-V(genre_net)$shape <- ifelse(V(genre_net)$genre, "circle", "square")
-E(genre_net)$color <- "lightgray"
-
-plot(genre_net,rescale = TRUE,
-    # ylim=c(100,400), xlim=c(-1700,2400), asp = 0, # Play around with the ylim and xlim numbers here for aesthetics please
-     vertex.label = NA,
-     vertex.label.color = "black",
-     layout = layout_nicely)
-
-plot(genre_net,
-     vertex.label = NA,
-     layout = layout_as_bipartite(genre_net, types = V(genre_net)$genre))
-
-```
-```{r}
-# Set margins for the plot
-par(mar = c(5, 5, 4, 4))
-
-# Assign colors to vertices based on genre attribute
-V(genre_net)$color <- ifelse(V(genre_net)$genre, "pink", "yellow")
-
-# Set shapes of vertices based on genre attribute
-V(genre_net)$shape <- ifelse(V(genre_net)$genre, "circle", "square")
-
-# Set color of edges
-E(genre_net)$color <- "lightgray"
-
-# Plot the network graph with a different layout for more spacing
-plot(genre_net,
-     rescale = TRUE, # Rescale plot to fit all vertices
-     vertex.label = NA, # Hide vertex labels
-     vertex.label.color = "black", # Set color of vertex labels
-     layout = layout_with_fr) # Use Fruchterman-Reingold layout for more spacing
-
-```
-
-=======
->>>>>>> 1825fabd572f63b14ee44babe14607727ca4ba0f
 ### Analysis here:
 
-## Python-processed adjacency matrix of each artist analyzed here:
+## Adjacency matrix of each artist analyzed here:
 
 ```{r}
 edges <- edges %>% filter((edges$id_0 %in% HP$spotify_id) &
@@ -196,12 +140,27 @@ V(collab_graph)$name <- HP$name
 V(collab_graph)$followers <- HP$followers
 ```
 
-```{r}
+```{r, fig.height=25,fig.width=25}
 plot(collab_graph, 
-     vertex.size = 0.25,
-     vertex.label.cex = 0.25,
-     layout = layout_with_fr(collab_graph) # consider layout_with_drl or layout_with_spectral
+     vertex.size = 1,
+     vertex.label = NA,
+     layout = layout_with_fr # consider layout_with_drl or layout_with_spectral
      )
+```
+
+```{r}
+degree_centralities <- list(length(HP$spotify_id))
+
+for (i in 1:nrow(HP)) {
+    degree_centralities[i] <- degree(collab_graph, v = V(collab_graph)[i], loops = FALSE)
+  }
+followers <- V(collab_graph)$followers
+degree_centralities <- as.matrix(degree_centralities)
+dat <- data.frame(degree_centralities, followers)
+
+relation <- lm(followers ~ dat[1], data = dat)
+
+summary(relation)
 ```
 
 ## Considerations that were impractical or not possible:
