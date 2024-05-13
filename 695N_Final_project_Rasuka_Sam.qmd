@@ -135,7 +135,16 @@ HPel <- na.omit(HPel)
 ```
 
 ```{r}
-hpnet <- graph_from_data_frame(as.matrix(HP_alt_dat), directed = FALSE)
+hpnet <- graph_from_data_frame(as.matrix(HP_alt_dat), directed = FALSE,
+                               vertices = HP_alt_dat)
+
+adj <- as_adjacency_matrix(hpnet)
+```
+
+```{r}
+V(hpnet)$name <- HP_alt_dat$alter_name
+
+mean(degree(hpnet))
 ```
 
 ## Considerations that were impractical or not possible:

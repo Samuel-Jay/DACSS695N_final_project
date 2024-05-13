@@ -30,7 +30,7 @@ ff = open('HPedgelist.csv', 'w')
 ff.write(adjmat_buf)
 ff.close()
 
-adjmat_buf = '"ego_spotify_id","alter_spotify_id", "alter_name", "alter_followers", "alter_genres"\n'
+adjmat_buf = '"ego_spotify_id","alter_spotify_id", "alter_name", "alter_followers"\n'
 with open('HPedgelistprep.csv', newline = '\n') as f1:
     reader1 = csv.reader(f1, delimiter = ',')
     for row in reader1:
@@ -41,8 +41,10 @@ with open('HPedgelistprep.csv', newline = '\n') as f1:
                 except:
                     continue
                 else:
-                    # print('new edge')
-                    adjmat_buf = adjmat_buf + tup[0] + ',' + tup[1] + ',' + str(node_attrs[neighbor_index][2]) + ',' + str(node_attrs[neighbor_index][3]) + ',"' + str(node_attrs[neighbor_index][5]) + '"\n'
+                    # for some reason the following line seems to cut off the list given as string
+                    # adjmat_buf = adjmat_buf + tup[0] + ',' + tup[1] + ',' + str(node_attrs[neighbor_index][1]) + ',' + str(node_attrs[neighbor_index][2]) + ',"' + str(node_attrs[neighbor_index][4]) + '"\n'
+                    # the following line works
+                    adjmat_buf = adjmat_buf + tup[0] + ',' + tup[1] + ',' + str(node_attrs[neighbor_index][1]) + ',' + str(node_attrs[neighbor_index][2]) + '\n'
 
 fc = open('HPalter_dat.csv', 'w')
 fc.write(adjmat_buf)
