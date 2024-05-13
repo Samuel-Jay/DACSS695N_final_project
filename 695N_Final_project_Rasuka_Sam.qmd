@@ -162,6 +162,7 @@ relation1 <- lm(followers ~ degree_centralities, data = dat1)
 
 summary(relation1)
 ```
+
 ```{r}
 neighbors_followcounts <- c(length(HP$spotify_id))
 
@@ -176,8 +177,6 @@ relation2 <- lm(followers ~ neighbors_followcounts, data = dat2)
 
 summary(relation2)
 ```
-
-
 
 ## Considerations that were impractical or not possible:
 
