@@ -97,12 +97,13 @@ genre_net
 ```{r}
 # HOW TO FIX MARGINS AND SPACING BETWEEN NODES:
 
+par(mar = c(,,,,))
 V(genre_net)$color <- ifelse(V(genre_net)$genre, "pink", "yellow")
 V(genre_net)$shape <- ifelse(V(genre_net)$genre, "circle", "square")
 E(genre_net)$color <- "lightgray"
 
-plot(genre_net,rescale = FALSE,
-     ylim=c(100,400), xlim=c(-1700,2400), asp = 0, # Play around with the ylim and xlim numbers here for aesthetics please
+plot(genre_net,rescale = TRUE,
+    # ylim=c(100,400), xlim=c(-1700,2400), asp = 0, # Play around with the ylim and xlim numbers here for aesthetics please
      vertex.label = NA,
      vertex.label.color = "black",
      layout = layout_nicely)
@@ -110,6 +111,27 @@ plot(genre_net,rescale = FALSE,
 plot(genre_net,
      vertex.label = NA,
      layout = layout_as_bipartite(genre_net, types = V(genre_net)$genre))
+
+```
+```{r}
+# Set margins for the plot
+par(mar = c(5, 5, 4, 4))
+
+# Assign colors to vertices based on genre attribute
+V(genre_net)$color <- ifelse(V(genre_net)$genre, "pink", "yellow")
+
+# Set shapes of vertices based on genre attribute
+V(genre_net)$shape <- ifelse(V(genre_net)$genre, "circle", "square")
+
+# Set color of edges
+E(genre_net)$color <- "lightgray"
+
+# Plot the network graph with a different layout for more spacing
+plot(genre_net,
+     rescale = TRUE, # Rescale plot to fit all vertices
+     vertex.label = NA, # Hide vertex labels
+     vertex.label.color = "black", # Set color of vertex labels
+     layout = layout_with_fr) # Use Fruchterman-Reingold layout for more spacing
 
 ```
 
