@@ -40,6 +40,7 @@ library(intergraph)
 library(stringr)
 library(readr)
 library(ggnetwork)
+library(readxl)
 ```
 
 These are the necessary packages to do our network analysis.
@@ -58,9 +59,7 @@ nodes <- read.csv("nodes.csv")
 nodes <- na.omit (nodes)
 nodes <- nodes %>% distinct(spotify_id, .keep_all = TRUE)
 
-<<<<<<< HEAD
 HP <- nodes %>% filter(((str_detect(genres, "hip hop")) & (str_detect(chart_hits, "us")) & (followers > 5000000)))
-=======
 # hiphop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
 # hiphop <- left_join(hiphop, nodes, by = join_by(id_1 == spotify_id))
 # hiphop <- hiphop %>% filter(((str_detect(genres.x, "hip hop")) | (str_detect(genres.y, "hip hop"))) &
@@ -73,9 +72,10 @@ HP <- nodes %>% filter(((str_detect(genres, "hip hop")) & (str_detect(chart_hits
 
 HP <- nodes %>% filter(((str_detect(genres, "hip hop"))) & (str_detect(chart_hits, "us")))
 HP <- HP %>% filter(followers > 5000000)
->>>>>>> 39b0bbaacc6439eebc2916670bc1d1cb0ebafd63
 
 ```
+
+>>>>>>> 39b0bbaacc6439eebc2916670bc1d1cb0ebafd63
 
 ### First problem:
 
@@ -100,6 +100,7 @@ V(genre_net)$genre <- ifelse(str_detect(genre_el[2], "hip hop"), TRUE, FALSE)
 
 genre_net
 ```
+
 ```{r}
 par(mar = c(5, 5, 4, 4))
 
@@ -163,78 +164,65 @@ HP <- HP %>% filter(HP$spotify_id %in% all_names)
 V(collab_graph)$name <- HP$name
 V(collab_graph)$followers <- HP$followers
 ```
-
-```{r, fig.height=25,fig.width=25}
+#no single node
+```{r}
+#, fig.height=25,fig.width=25}
 plot(collab_graph, 
-<<<<<<< HEAD
      vertex.size = 0.5,
-     vertex.label.cex = 0.25,
-     layout = layout_with_fr(collab_graph)
-=======
-     vertex.size = 1,
-     vertex.label = NA,
-     layout = layout_with_fr # consider layout_with_drl or layout_with_spectral
->>>>>>> 39b0bbaacc6439eebc2916670bc1d1cb0ebafd63
+     vertex.label.cex = 0.5,
+     layout = layout_with_fr 
      )
 ```
 
 ```{r}
-degree_centralities <- c(length(HP$spotify_id))
+#degree_centralities <- c(length(HP$spotify_id))
 
-for (i in 1:nrow(HP)) {
-    degree_centralities[i] <- degree(collab_graph, v = V(collab_graph)[i], loops = FALSE)
-  }
-followers <- V(collab_graph)$followers
-degree_centralities <- as.matrix(degree_centralities)
-dat1 <- data.frame(degree_centralities, followers)
+#for (i in 1:nrow(HP)) {
+ #   degree_centralities[i] <- degree(collab_graph, v = V(collab_graph)[i], loops = FALSE)
+  #}
+#followers <- V(collab_graph)$followers
+#degree_centralities <- as.matrix(degree_centralities)
+#dat1 <- data.frame(degree_centralities, followers)
 
-relation1 <- lm(followers ~ degree_centralities, data = dat1)
+#relation1 <- lm(followers ~ degree_centralities, data = dat1)
 
-summary(relation1)
-```
+#summary(relation1)
 
-```{r}
-neighbors_followcounts <- c(length(HP$spotify_id))
+#neighbors_followcounts <- c(length(HP$spotify_id))
 
-for (i in 1:nrow(HP)) {
-  neighbors_followcounts[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$followers)
-}
-followers <- V(collab_graph)$followers
-neighbors_followcounts <- as.matrix(neighbors_followcounts)
-dat2 <- data.frame(neighbors_followcounts, followers)
+#for (i in 1:nrow(HP)) {
+ # neighbors_followcounts[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$followers)
+#}
+#followers <- V(collab_graph)$followers
+#neighbors_followcounts <- as.matrix(neighbors_followcounts)
+#dat2 <- data.frame(neighbors_followcounts, followers)
 
-relation2 <- lm(followers ~ neighbors_followcounts, data = dat2)
+#relation2 <- lm(followers ~ neighbors_followcounts, data = dat2)
 
-summary(relation2)
-```
+#summary(relation2)
 
-```{r}
-V(collab_graph)$popularity <- HP$popularity
+#V(collab_graph)$popularity <- HP$popularity
 
-summary(lm(popularity ~ followers, data = HP))
-```
+#summary(lm(popularity ~ followers, data = HP))
 
-```{r}
-popularity <- V(collab_graph)$popularity
-neighbors_popularity <- c(length(HP$spotify_id))
+#popularity <- V(collab_graph)$popularity
+#neighbors_popularity <- c(length(HP$spotify_id))
 
-for (i in 1:nrow(HP)) {
-  neighbors_popularity[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$popularity)
-}
-neighbors_popularity <- as.matrix(neighbors_popularity)
-dat3 <- data.frame(neighbors_popularity, popularity)
+#for (i in 1:nrow(HP)) {
+ # neighbors_popularity[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$popularity)
+#}
+#neighbors_popularity <- as.matrix(neighbors_popularity)
+#dat3 <- data.frame(neighbors_popularity, popularity)
 
-relation3 <- lm(popularity ~ neighbors_popularity, data = dat3)
+#relation3 <- lm(popularity ~ neighbors_popularity, data = dat3)
 
-summary(relation3)
-```
+#summary(relation3)
 
-```{r}
-dat4 <- data.frame(degree_centralities, popularity)
+#dat4 <- data.frame(degree_centralities, popularity)
 
-relation4 <- lm(popularity ~ degree_centralities, data = dat4)
+#relation4 <- lm(popularity ~ degree_centralities, data = dat4)
 
-summary(relation4)
+#summary(relation4)
 ```
 
 ## Cross-genre vs in-genre collaboration:
