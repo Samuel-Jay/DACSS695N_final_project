@@ -127,7 +127,7 @@ HP <- HP %>% filter(HP$spotify_id %in% all_names)
 V(collab_graph)$name <- HP$name
 V(collab_graph)$followers <- HP$followers
 ```
-#no single node
+
 ```{r}
 #, fig.height=25,fig.width=25}
 plot(collab_graph, 
