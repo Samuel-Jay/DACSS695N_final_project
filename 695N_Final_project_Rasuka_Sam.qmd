@@ -70,12 +70,10 @@ HP <- nodes %>% filter(((str_detect(genres, "hip hop")) & (str_detect(chart_hits
 # pop <- pop %>% filter(((str_detect(genres.x, "pop")) | (str_detect(genres.y, "pop"))) &
 #                             ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
 
-HP <- nodes %>% filter(((str_detect(genres, "hip hop"))) & (str_detect(chart_hits, "us")))
-HP <- HP %>% filter(followers > 5000000)
+# HP <- nodes %>% filter(((str_detect(genres, "hip hop"))) & (str_detect(chart_hits, "us")))
+# HP <- HP %>% filter(followers > 5000000)
 
 ```
-
->>>>>>> 39b0bbaacc6439eebc2916670bc1d1cb0ebafd63
 
 ### First problem:
 
@@ -86,46 +84,11 @@ mean(degree(full_net))
 
 There are 153k nodes/artists in the network and 300k collaborations between them, the average degree of the network from the edgelist should be less than 2 (it says 3.918 up there). The node attribute list has 156k entries, don't know if they are duplicates or artists who just didn't collaborate with anyone.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 ## Converting to 2-mode network to compare in-genre collab rate vs cross-genre collab:
 
-We will now take the subgenres of hip hop and pop and look at which artists belong to which subgenres. Then we can compare the collaboration within hiphop vs between hiphop and pop. We can also then compare the popularity of in-genre collaborators vs cross-genre collaborators.
+We will now take the subgenres of hip hop and look at which artists belong to which subgenres. Then we can compare the collaboration within a subgenre vs between different subgenres. We can also then compare the popularity of in-genre collaborators vs cross-genre collaborators.
 
-```{r}
-genre_el <- as.matrix(data.frame(HP[2], HP[5], HP[3]))
-genre_net <- graph_from_data_frame(genre_el, directed = FALSE)
-
-V(genre_net)$genre <- ifelse(str_detect(genre_el[2], "hip hop"), TRUE, FALSE)
-
-genre_net
-```
-
-```{r}
-par(mar = c(5, 5, 4, 4))
-
-V(genre_net)$color <- ifelse(V(genre_net)$genre, "lightblue", "pink")
-
-V(genre_net)$shape <- ifelse(V(genre_net)$genre, "traingle", "circle")
-
-E(genre_net)$color <- "black"
-
-plot(genre_net,
-     rescale = TRUE, 
-     vertex.label.cex = 0.25, 
-     vertex.label.color = "black", 
-     layout = layout_with_fr) 
-
-```
-
-=======
->>>>>>> 1825fabd572f63b14ee44babe14607727ca4ba0f
-### Analysis here:
-
-## Python-processed adjacency matrix of each artist analyzed here:
-=======
 ## Adjacency matrix of each artist analyzed here:
->>>>>>> 39b0bbaacc6439eebc2916670bc1d1cb0ebafd63
 
 ```{r}
 edges <- edges %>% filter((edges$id_0 %in% HP$spotify_id) &
