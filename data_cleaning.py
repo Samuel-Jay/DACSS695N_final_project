@@ -2,50 +2,19 @@ import os
 import csv
 
 
-edgetuples = []
-with open('edges.csv', newline = '\n') as f2:
-    reader2 = csv.reader(f2, delimiter = ',')
-    for row in reader2:
-        edgetuples.append((row[0], row[1]))
-# print(len(edgetuples))
+subgenres = []
+with open('HP.csv', newline = '\n') as f:
+    reader = csv.reader(f, delimiter = ',')
+    for row in reader:
+        genre_str = row[5][1:len(row[5]) - 1]
+        curr_art_gen = genre_str.split(',')
+        for cat in curr_art_gen:
+            if cat not in subgenres and 'hip hop' in cat:
+                subgenres.append(cat)
+            else:
+                continue
+# print(subgenres)
 
-node_attrs = []
-node_ids = []
-with open('nodes.csv', newline = '\n') as f3:
-    reader3 = csv.reader(f3, delimiter = ',')
-    for row in reader3:
-        node_attrs.append(row)
-        node_ids.append(row[0])
-# print(len(node_ids))
-
-adjmat_buf = '"ego_spotify_id","alter_spotify_id"\n'
-with open('HPedgelistprep.csv', newline = '\n') as f1:
-    reader1 = csv.reader(f1, delimiter = ',')
-    for row in reader1:
-        for tup in edgetuples:
-            if tup[0] == row[1]:
-                adjmat_buf = adjmat_buf + tup[0] + ',' + tup[1] + '\n'
-
-ff = open('HPedgelist.csv', 'w')
-ff.write(adjmat_buf)
-ff.close()
-
-adjmat_buf = '"ego_spotify_id","alter_spotify_id", "alter_name", "alter_followers"\n'
-with open('HPedgelistprep.csv', newline = '\n') as f1:
-    reader1 = csv.reader(f1, delimiter = ',')
-    for row in reader1:
-        for tup in edgetuples:
-            if tup[0] == row[1]:
-                try:
-                    neighbor_index = node_ids.index(tup[1])
-                except:
-                    continue
-                else:
-                    # for some reason the following line seems to cut off the list given as string
-                    # adjmat_buf = adjmat_buf + tup[0] + ',' + tup[1] + ',' + str(node_attrs[neighbor_index][1]) + ',' + str(node_attrs[neighbor_index][2]) + ',"' + str(node_attrs[neighbor_index][4]) + '"\n'
-                    # the following line works
-                    adjmat_buf = adjmat_buf + tup[0] + ',' + tup[1] + ',' + str(node_attrs[neighbor_index][1]) + ',' + str(node_attrs[neighbor_index][2]) + '\n'
-
-fc = open('HPalter_dat.csv', 'w')
-fc.write(adjmat_buf)
-fc.close()
+genresfile = open('hiphopsubgenres.csv', 'w')
+genresfile.write(str(subgenres))
+genresfile.close()
