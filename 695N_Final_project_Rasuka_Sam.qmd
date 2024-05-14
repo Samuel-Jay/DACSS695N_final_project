@@ -58,7 +58,22 @@ nodes <- read.csv("nodes.csv")
 nodes <- na.omit (nodes)
 nodes <- nodes %>% distinct(spotify_id, .keep_all = TRUE)
 
+<<<<<<< HEAD
 HP <- nodes %>% filter(((str_detect(genres, "hip hop")) & (str_detect(chart_hits, "us")) & (followers > 5000000)))
+=======
+# hiphop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
+# hiphop <- left_join(hiphop, nodes, by = join_by(id_1 == spotify_id))
+# hiphop <- hiphop %>% filter(((str_detect(genres.x, "hip hop")) | (str_detect(genres.y, "hip hop"))) &
+#                             ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
+
+# pop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
+# pop <- left_join(pop, nodes, by = join_by(id_1 == spotify_id))
+# pop <- pop %>% filter(((str_detect(genres.x, "pop")) | (str_detect(genres.y, "pop"))) &
+#                             ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
+
+HP <- nodes %>% filter(((str_detect(genres, "hip hop"))) & (str_detect(chart_hits, "us")))
+HP <- HP %>% filter(followers > 5000000)
+>>>>>>> 39b0bbaacc6439eebc2916670bc1d1cb0ebafd63
 
 ```
 
@@ -71,6 +86,7 @@ mean(degree(full_net))
 
 There are 153k nodes/artists in the network and 300k collaborations between them, the average degree of the network from the edgelist should be less than 2 (it says 3.918 up there). The node attribute list has 156k entries, don't know if they are duplicates or artists who just didn't collaborate with anyone.
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 ## Converting to 2-mode network to compare in-genre collab rate vs cross-genre collab:
 
@@ -106,6 +122,9 @@ plot(genre_net,
 ### Analysis here:
 
 ## Python-processed adjacency matrix of each artist analyzed here:
+=======
+## Adjacency matrix of each artist analyzed here:
+>>>>>>> 39b0bbaacc6439eebc2916670bc1d1cb0ebafd63
 
 ```{r}
 edges <- edges %>% filter((edges$id_0 %in% HP$spotify_id) &
@@ -145,12 +164,119 @@ V(collab_graph)$name <- HP$name
 V(collab_graph)$followers <- HP$followers
 ```
 
-```{r}
+```{r, fig.height=25,fig.width=25}
 plot(collab_graph, 
+<<<<<<< HEAD
      vertex.size = 0.5,
      vertex.label.cex = 0.25,
      layout = layout_with_fr(collab_graph)
+=======
+     vertex.size = 1,
+     vertex.label = NA,
+     layout = layout_with_fr # consider layout_with_drl or layout_with_spectral
+>>>>>>> 39b0bbaacc6439eebc2916670bc1d1cb0ebafd63
      )
+```
+
+```{r}
+degree_centralities <- c(length(HP$spotify_id))
+
+for (i in 1:nrow(HP)) {
+    degree_centralities[i] <- degree(collab_graph, v = V(collab_graph)[i], loops = FALSE)
+  }
+followers <- V(collab_graph)$followers
+degree_centralities <- as.matrix(degree_centralities)
+dat1 <- data.frame(degree_centralities, followers)
+
+relation1 <- lm(followers ~ degree_centralities, data = dat1)
+
+summary(relation1)
+```
+
+```{r}
+neighbors_followcounts <- c(length(HP$spotify_id))
+
+for (i in 1:nrow(HP)) {
+  neighbors_followcounts[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$followers)
+}
+followers <- V(collab_graph)$followers
+neighbors_followcounts <- as.matrix(neighbors_followcounts)
+dat2 <- data.frame(neighbors_followcounts, followers)
+
+relation2 <- lm(followers ~ neighbors_followcounts, data = dat2)
+
+summary(relation2)
+```
+
+```{r}
+V(collab_graph)$popularity <- HP$popularity
+
+summary(lm(popularity ~ followers, data = HP))
+```
+
+```{r}
+popularity <- V(collab_graph)$popularity
+neighbors_popularity <- c(length(HP$spotify_id))
+
+for (i in 1:nrow(HP)) {
+  neighbors_popularity[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$popularity)
+}
+neighbors_popularity <- as.matrix(neighbors_popularity)
+dat3 <- data.frame(neighbors_popularity, popularity)
+
+relation3 <- lm(popularity ~ neighbors_popularity, data = dat3)
+
+summary(relation3)
+```
+
+```{r}
+dat4 <- data.frame(degree_centralities, popularity)
+
+relation4 <- lm(popularity ~ degree_centralities, data = dat4)
+
+summary(relation4)
+```
+
+## Cross-genre vs in-genre collaboration:
+
+```{r}
+library(car)
+
+cols <- recode(HP$genres, 
+               as.factor = F, "'[A-Z]^ hip hop' = 'yellow'; NA = NA; else = 'orange'")
+
+table(HP$genres, cols)
+
+artist_collab_eb <- cluster_edge_betweenness(graph = collab_graph)
+
+plot(artist_collab_eb, collab_graph, 
+     col = cols, vertex.label = NA, layout = layout_with_drl, 
+     main = "Genre Mapped onto Communities")
+```
+
+```{r}
+proportion_function <- function(communities, attribute){ 
+  
+  # Arguments:
+  # communities: vector of community membership
+  # attribute: attribute vector
+
+  # Here we calculate the proportion that fall into each category 
+  # found in attribute. We first do a table and then find the proportion 
+  # in each category. This is done for each community (using tapply 
+  # over the communities).
+  
+  dat <- tapply(factor(attribute), communities, 
+             function(x) {y <-  table(x); y / sum(y)})
+
+  # We then output it as a matrix using do.call
+  return(do.call(rbind, dat))
+}
+```
+
+```{r}
+mems_eb <- membership(collab_graph)
+proportion_function(communities = mems_eb, attribute = HP$genre)
 ```
 
 ## Considerations that were impractical or not possible:
