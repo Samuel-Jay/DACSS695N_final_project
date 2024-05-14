@@ -187,7 +187,8 @@ plot(collab_graph,
 
 #summary(relation4)
 ```
-
+All these regression analyses yielded no significant results, except for the obvious fact that popularity and follower count are strongly correlated. Intuitively, artists that collaborate with more people would be listened to (and followed by) by all their collaborators' fans. But the p-values for every coefficient were well above any threshold of statistical significance (~0.8 or ~0.5 >> 0.05), indicating no correlation.
+So we 're looking at:
 ## Cross-genre vs in-genre collaboration:
 
 ```{r}
