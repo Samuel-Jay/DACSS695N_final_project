@@ -58,17 +58,7 @@ nodes <- read.csv("nodes.csv")
 nodes <- na.omit (nodes)
 nodes <- nodes %>% distinct(spotify_id, .keep_all = TRUE)
 
-# hiphop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
-# hiphop <- left_join(hiphop, nodes, by = join_by(id_1 == spotify_id))
-# hiphop <- hiphop %>% filter(((str_detect(genres.x, "hip hop")) | (str_detect(genres.y, "hip hop"))) &
-#                             ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
-
-# pop <- left_join(edges, nodes, by = join_by(id_0 == spotify_id))
-# pop <- left_join(pop, nodes, by = join_by(id_1 == spotify_id))
-# pop <- pop %>% filter(((str_detect(genres.x, "pop")) | (str_detect(genres.y, "pop"))) &
-#                             ((str_detect(chart_hits.x, "us")) | (str_detect(chart_hits.y, "us"))))
-
-HP <- nodes %>% filter(((str_detect(genres, "hip hop")) | str_detect(genres, "pop")) & (str_detect(chart_hits, "us")))
+HP <- nodes %>% filter(((str_detect(genres, "hip hop")) & (str_detect(chart_hits, "us")) & (followers > 5000000)))
 
 ```
 
@@ -94,45 +84,20 @@ V(genre_net)$genre <- ifelse(str_detect(genre_el[2], "hip hop"), TRUE, FALSE)
 
 genre_net
 ```
-
 ```{r}
-# HOW TO FIX MARGINS AND SPACING BETWEEN NODES:
-
-par(mar = c(,,,,))
-V(genre_net)$color <- ifelse(V(genre_net)$genre, "pink", "yellow")
-V(genre_net)$shape <- ifelse(V(genre_net)$genre, "circle", "square")
-E(genre_net)$color <- "lightgray"
-
-plot(genre_net,rescale = TRUE,
-    # ylim=c(100,400), xlim=c(-1700,2400), asp = 0, # Play around with the ylim and xlim numbers here for aesthetics please
-     vertex.label = NA,
-     vertex.label.color = "black",
-     layout = layout_nicely)
-
-plot(genre_net,
-     vertex.label = NA,
-     layout = layout_as_bipartite(genre_net, types = V(genre_net)$genre))
-
-```
-```{r}
-# Set margins for the plot
 par(mar = c(5, 5, 4, 4))
 
-# Assign colors to vertices based on genre attribute
-V(genre_net)$color <- ifelse(V(genre_net)$genre, "pink", "yellow")
+V(genre_net)$color <- ifelse(V(genre_net)$genre, "lightblue", "pink")
 
-# Set shapes of vertices based on genre attribute
-V(genre_net)$shape <- ifelse(V(genre_net)$genre, "circle", "square")
+V(genre_net)$shape <- ifelse(V(genre_net)$genre, "traingle", "circle")
 
-# Set color of edges
-E(genre_net)$color <- "lightgray"
+E(genre_net)$color <- "black"
 
-# Plot the network graph with a different layout for more spacing
 plot(genre_net,
-     rescale = TRUE, # Rescale plot to fit all vertices
-     vertex.label = NA, # Hide vertex labels
-     vertex.label.color = "black", # Set color of vertex labels
-     layout = layout_with_fr) # Use Fruchterman-Reingold layout for more spacing
+     rescale = TRUE, 
+     vertex.label.cex = 0.25, 
+     vertex.label.color = "black", 
+     layout = layout_with_fr) 
 
 ```
 
@@ -145,22 +110,6 @@ plot(genre_net,
 ```{r}
 edges <- edges %>% filter((edges$id_0 %in% HP$spotify_id) &
                             (edges$id_1 %in% HP$spotify_id))
-
-# all_names <- unique(c(collaborations$from, collaborations$to))
-# 
-# # Create an empty adjacency matrix
-# adj_matrix <- matrix(0, nrow = length(all_names), ncol = length(all_names), dimnames = list(all_names, all_names))
-# 
-# # Fill in the adjacency matrix based on collaborations
-# for (i in 1:nrow(collaborations)) {
-#   from <- collaborations$from[i]
-#   to <- collaborations$to[i]
-#   adj_matrix[from, to] <- 1
-#   adj_matrix[to, from] <- 1 # Uncomment if collaboration is bidirectional
-# }
-# 
-# # Print the adjacency matrix
-# print(adj_matrix)
 
 # Get unique collaborations and their frequencies
 unique_collaborations <- table(paste(edges$id_0, edges$id_1))
@@ -198,9 +147,9 @@ V(collab_graph)$followers <- HP$followers
 
 ```{r}
 plot(collab_graph, 
-     vertex.size = 0.25,
+     vertex.size = 0.5,
      vertex.label.cex = 0.25,
-     layout = layout_with_fr(collab_graph) # consider layout_with_drl or layout_with_spectral
+     layout = layout_with_fr(collab_graph)
      )
 ```
 
