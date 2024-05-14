@@ -194,16 +194,99 @@ So we 're gonna be looking at other network centrality vs follower counts and po
 ```{r}
 dist_mat = distances(collab_graph)
 diag(dist_mat) <-  NA
+mean(dist_mat, na.rm = T)
 median(dist_mat, na.rm = T)
 close_mat <- 1/dist_mat
 mean(close_mat, na.rm = T)
 median(close_mat, na.rm = T)
 ```
+So there is a finite distance from every node to every other node as evidenced by the fact that the mean(distances) is 2.07
 
 ```{r}
+closeness_measure <- closeness(collab_graph, normalized = T)
+distance_measure <- distances(collab_graph)
+diag(distance_measure) <- NA
+betweenness_measure <- betweenness(collab_graph, directed = FALSE, normalized = F)
+ev_centrality <- eigen_centrality(collab_graph)$vector
 
+centrality_popularity <- data.frame(names = HP$name,
+                                  closeness_measure = closeness_measure,
+                                  betweenness_measure = betweenness_measure,
+                                  eigencentrality = ev_centrality,
+                                  popularity = HP$popularity)
+
+centrality_followers <- data.frame(names = HP$name,
+                                  closeness_measure = closeness_measure,
+                                  betweenness_measure = betweenness_measure,
+                                  eigencentrality = ev_centrality,
+                                  follcts = HP$followers)
 ```
 
+```{r}
+library(ggplot2)
+
+clos_pop_plot <- ggplot(centrality_popularity, aes(x = closeness_measure, y = popularity)) +
+  geom_point() +                                      
+  geom_smooth(method = "lm", 
+              formula = popularity ~ closeness_measure) +
+  xlab("Closeness to other artists") + ylab("Popularity") +
+ theme(axis.text = element_text(size = 6.5))
+clos_pop_plot
+
+between_pop_plot <- ggplot(centrality_popularity, aes(x = betweenness_measure, y = popularity)) +
+  geom_point() +                                      
+  geom_smooth(method = "lm", 
+              formula = popularity ~ betweenness_measure) +
+  xlab("Betweenness among artists") + ylab("Popularity") +
+ theme(axis.text = element_text(size = 6.5))
+between_pop_plot
+
+evc_pop_plot <- ggplot(centrality_popularity, aes(x = eigencentrality, y = popularity)) +
+  geom_point() +                                      
+  geom_smooth(method = "lm", 
+              formula = popularity ~ eigencentrality) +
+  xlab("Eigenvector Centrality of artists") + ylab("Popularity") +
+ theme(axis.text = element_text(size = 6.5))
+evc_pop_plot
+
+clos_foll_plot <- ggplot(centrality_followers, aes(x = closeness_measure, y = follcts)) +
+  geom_point() +                                      
+  geom_smooth(method = "lm", 
+              formula = follcts ~ closeness_measure) +
+  xlab("Closeness to other artists") + ylab("Follower counts of artists") +
+ theme(axis.text = element_text(size = 6.5))
+clos_foll_plot
+
+between_foll_plot <- ggplot(centrality_followers, aes(x = betweenness_measure, y = follcts)) +
+  geom_point() +                                      
+  geom_smooth(method = "lm", 
+              formula = follcts ~ betweenness_measure) +
+  xlab("Betweenness among artists") + ylab("Follower count of artists") +
+ theme(axis.text = element_text(size = 6.5))
+between_foll_plot
+
+evc_foll_plot <- ggplot(centrality_followers, aes(x = eigencentrality, y = follcts)) +
+  geom_point() +                                      
+  geom_smooth(method = "lm", 
+              formula = follcts ~ eigencentrality) +
+  xlab("Eigenvector Centrality of artists") + ylab("Follower count of artists") +
+ theme(axis.text = element_text(size = 6.5))
+evc_foll_plot
+```
+
+```{r}
+centr_degree(collab_graph, loops = FALSE, normalized = TRUE)
+```
+
+```{r}
+den_collabs <- density(degree(collab_graph), from = 0)
+plot(range(den_collabs$x), range(den_collabs$y), 
+     type = "n", xlab = "degree", 
+     ylab = "density", 
+     main = "Degree Distribution for Collaboration Network")
+
+lines(den_collabs, col = "red" , lty = 2, lwd = 2)
+```
 
 ## Cross-genre vs in-genre collaboration:
 
