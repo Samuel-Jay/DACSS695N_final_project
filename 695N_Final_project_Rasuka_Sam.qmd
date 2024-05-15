@@ -126,11 +126,10 @@ HP <- HP %>% filter(HP$spotify_id %in% all_names)
 
 V(collab_graph)$name <- HP$name
 V(collab_graph)$followers <- HP$followers
+V(collab_graph)$genres = HP$genres
 ```
 
-```{r}
-#, fig.height=25,fig.width=25}
-V(collab_graph)$genres = HP$genres
+```{r, fig.height=25,fig.width=25}
 
 
 plot(
@@ -138,7 +137,7 @@ plot(
   vertex.size = 5,
   vertex.label.cex = 0.5,
   layout = layout_with_fr,
-  vertex.shapes = ifelse(str_detect(V(collab_graph)$genres, "hip hop"), "square", "circle")
+  vertex.shapes = ifelse(str_detect(V(collab_graph)$genres, "hip hop") & !(str_detect(V(collab_graph)$genres, "pop")), "square", "circle")
 )
 
 ```
