@@ -137,7 +137,7 @@ plot(
   vertex.size = 5,
   vertex.label.cex = 0.5,
   layout = layout_with_fr,
-  vertex.shapes = ifelse(str_detect(V(collab_graph)$genres, "hip hop") & !(str_detect(V(collab_graph)$genres, "pop")), "square", "circle")
+  vertex.shapes = ifelse((str_detect(V(collab_graph)$genres, "hip hop") & !(str_detect(V(collab_graph)$genres, "pop"))), "square", "circle")
 )
 
 ```
