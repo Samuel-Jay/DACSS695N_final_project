@@ -130,11 +130,17 @@ V(collab_graph)$followers <- HP$followers
 
 ```{r}
 #, fig.height=25,fig.width=25}
-plot(collab_graph, 
-     vertex.size = 0.5,
-     vertex.label.cex = 0.5,
-     layout = layout_with_fr 
-     )
+V(collab_graph)$genres = HP$genres
+
+
+plot(
+  collab_graph, 
+  vertex.size = 0.5,
+  vertex.label.cex = 0.5,
+  layout = layout_with_fr,
+  vertex.shapes = ifelse(str_detect(V(collab_graph)$genres, "hip hop"), "square", "circle")
+)
+
 ```
 
 ```{r}
