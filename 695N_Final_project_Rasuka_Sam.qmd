@@ -317,11 +317,7 @@ plot(range(den_collabs$x), range(den_collabs$y),
 lines(den_collabs, col = "red" , lty = 2, lwd = 2)
 ```
 
-## Cross-genre vs in-genre collaboration:
-
-```{r}
-# write.csv(HP, "HP.csv")
-```
+## Community detection and cross-community vs in-community collaboration:
 
 Was going to put each artist into one (or more) of the many subgenres of hip hop but community detection and analysis isn't for now.
 
