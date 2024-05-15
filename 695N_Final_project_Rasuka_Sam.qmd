@@ -131,66 +131,76 @@ V(collab_graph)$genres = HP$genres
 
 ```{r, fig.height=25,fig.width=25}
 
+layout_coords <- layout_with_fr(collab_graph)
 
 plot(
   collab_graph, 
   vertex.size = 5,
-  vertex.label.cex = 0.5,
-  layout = layout_with_fr,
-  vertex.shapes = ifelse((str_detect(V(collab_graph)$genres, "hip hop") & !(str_detect(V(collab_graph)$genres, "pop"))), "square", "circle")
+  vertex.label.cex = 2.5,
+  layout = layout_coords
+)
+
+# Overlay squares for nodes that meet the condition
+squares_nodes <- V(collab_graph)[str_detect(V(collab_graph)$genres, "hip hop") & !(str_detect(V(collab_graph)$genres, "pop"))]
+points(
+  x = layout_coords[squares_nodes, 1],
+  y = layout_coords[squares_nodes, 2],
+  pch = 22,
+  bg = "blue",
+  cex = 2
 )
 
 ```
 
 ```{r}
-#degree_centralities <- c(length(HP$spotify_id))
+degree_centralities <- c(length(HP$spotify_id))
 
-#for (i in 1:nrow(HP)) {
- #   degree_centralities[i] <- degree(collab_graph, v = V(collab_graph)[i], loops = FALSE)
-  #}
-#followers <- V(collab_graph)$followers
-#degree_centralities <- as.matrix(degree_centralities)
-#dat1 <- data.frame(degree_centralities, followers)
+for (i in 1:nrow(HP)) {
+  degree_centralities[i] <- degree(collab_graph, v = V(collab_graph)[i], loops = FALSE)
+}
+followers <- V(collab_graph)$followers
+degree_centralities <- as.matrix(degree_centralities)
+dat1 <- data.frame(degree_centralities, followers)
 
-#relation1 <- lm(followers ~ degree_centralities, data = dat1)
+relation1 <- lm(followers ~ degree_centralities, data = dat1)
 
-#summary(relation1)
+summary(relation1)
 
-#neighbors_followcounts <- c(length(HP$spotify_id))
+neighbors_followcounts <- c(length(HP$spotify_id))
 
-#for (i in 1:nrow(HP)) {
- # neighbors_followcounts[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$followers)
-#}
-#followers <- V(collab_graph)$followers
-#neighbors_followcounts <- as.matrix(neighbors_followcounts)
-#dat2 <- data.frame(neighbors_followcounts, followers)
+for (i in 1:nrow(HP)) {
+neighbors_followcounts[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$followers)
+}
+followers <- V(collab_graph)$followers
+neighbors_followcounts <- as.matrix(neighbors_followcounts)
+dat2 <- data.frame(neighbors_followcounts, followers)
 
-#relation2 <- lm(followers ~ neighbors_followcounts, data = dat2)
+relation2 <- lm(followers ~ neighbors_followcounts, data = dat2)
 
-#summary(relation2)
+summary(relation2)
 
-#V(collab_graph)$popularity <- HP$popularity
+V(collab_graph)$popularity <- HP$popularity
 
-#summary(lm(popularity ~ followers, data = HP))
+summary(lm(popularity ~ followers, data = HP))
 
-#popularity <- V(collab_graph)$popularity
-#neighbors_popularity <- c(length(HP$spotify_id))
+popularity <- V(collab_graph)$popularity
+neighbors_popularity <- c(length(HP$spotify_id))
 
-#for (i in 1:nrow(HP)) {
- # neighbors_popularity[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$popularity)
-#}
-#neighbors_popularity <- as.matrix(neighbors_popularity)
-#dat3 <- data.frame(neighbors_popularity, popularity)
+for (i in 1:nrow(HP)) {
+neighbors_popularity[i] <- sum(neighbors(collab_graph, V(collab_graph)[i])$popularity)
+}
+neighbors_popularity <- as.matrix(neighbors_popularity)
+dat3 <- data.frame(neighbors_popularity, popularity)
 
-#relation3 <- lm(popularity ~ neighbors_popularity, data = dat3)
+relation3 <- lm(popularity ~ neighbors_popularity, data = dat3)
 
-#summary(relation3)
+summary(relation3)
 
-#dat4 <- data.frame(degree_centralities, popularity)
+dat4 <- data.frame(degree_centralities, popularity)
 
-#relation4 <- lm(popularity ~ degree_centralities, data = dat4)
+relation4 <- lm(popularity ~ degree_centralities, data = dat4)
 
-#summary(relation4)
+summary(relation4)
 ```
 
 All these regression analyses yielded no significant results, except for the obvious fact that popularity and follower count are strongly correlated. Intuitively, artists that collaborate with more people would be listened to (and followed by) by all their collaborators' fans. But the p-values for every coefficient were well above any threshold of statistical significance (\~0.8 or \~0.5 \>\> 0.05), indicating no correlation.
@@ -281,9 +291,21 @@ evc_foll_plot <- ggplot(centrality_followers, aes(x = eigencentrality, y = follc
 evc_foll_plot
 ```
 
+The nodes ranked by eigencentrality:
+
 ```{r}
-centr_degree(collab_graph, loops = FALSE, normalized = TRUE)
+head(centrality_followers %>% 
+  arrange(desc(eigencentrality)))
 ```
+
+The nodes ranked by follower counts:
+
+```{r}
+head(centrality_followers %>% 
+  arrange(desc(follcts)))
+```
+
+The only name that is in both top 6 entries is Daddy Yankee. Everyone else is in one of the tables but not the other. This shows that Eigencentrality is not very strongly correlated to follower counts.
 
 ```{r}
 den_collabs <- density(degree(collab_graph), from = 0)
@@ -301,48 +323,62 @@ lines(den_collabs, col = "red" , lty = 2, lwd = 2)
 # write.csv(HP, "HP.csv")
 ```
 
-```{r}
-# Was going to put each artist into one (or more) of the many subgenres of hip hop but community detection and analysis isn't for now.
+Was going to put each artist into one (or more) of the many subgenres of hip hop but community detection and analysis isn't for now.
+
+```{r, fig.height=25,fig.width=25}
+# Perform community detection using the Louvain method
+communities <- cluster_louvain(collab_graph)
+
+# Get the membership vector indicating the community assignment for each node
+membership <- membership(communities)
+
+# Plot the graph with nodes colored by community
+plot(collab_graph,
+     vertex.label.cex = 2.5,
+     vertex.color = membership,
+     layout = layout_on_grid)
 ```
 
 ```{r}
-library(car)
+# Get the number of nodes in the graph
+total_nodes <- vcount(collab_graph)
 
-cols <- recode(HP$genres, 
-               as.factor = F, "'[A-Z]^ hip hop' = 'yellow'; NA = NA; else = 'orange'")
+# Get the sizes of each community
+community_sizes <- sizes(communities)
 
-table(HP$genres, cols)
+# Calculate the proportion of nodes in each community
+proportions <- community_sizes / total_nodes
 
-artist_collab_eb <- cluster_edge_betweenness(graph = collab_graph)
-
-plot(artist_collab_eb, collab_graph, 
-     col = cols, vertex.label = NA, layout = layout_with_drl, 
-     main = "Genre Mapped onto Communities")
+# Print the proportions
+print(proportions)
 ```
 
-```{r}
-proportion_function <- function(communities, attribute){ 
-  
-  # Arguments:
-  # communities: vector of community membership
-  # attribute: attribute vector
-
-  # Here we calculate the proportion that fall into each category 
-  # found in attribute. We first do a table and then find the proportion 
-  # in each category. This is done for each community (using tapply 
-  # over the communities).
-  
-  dat <- tapply(factor(attribute), communities, 
-             function(x) {y <-  table(x); y / sum(y)})
-
-  # We then output it as a matrix using do.call
-  return(do.call(rbind, dat))
-}
-```
+There are 4 communities found. Above are the percentage of artists in each community.
 
 ```{r}
-mems_eb <- membership(collab_graph)
-proportion_function(communities = mems_eb, attribute = HP$genre)
+# Calculate closeness centrality for each node
+closeness <- closeness(collab_graph)
+
+# Calculate the average closeness centrality within each community
+avg_closeness_within <- tapply(closeness, membership(communities), mean)
+
+# Calculate the average closeness centrality between different communities
+# by iterating over each edge and averaging the closeness of nodes in different communities
+avg_closeness_between <- mean(sapply(E(collab_graph), function(e) {
+  from_community <- membership(communities)[as.integer(tail(e, 1))]
+  to_community <- membership(communities)[as.integer(head(e, 1))]
+  if (!is.na(from_community) && !is.na(to_community) && from_community != to_community) {
+    (closeness[tail(e, 1)] + closeness[head(e, 1)]) / 2
+  } else {
+    0  # Ignore edges within the same community or with missing community membership
+  }
+}))
+
+# Print the results
+print("Average closeness within each community:")
+print(avg_closeness_within)
+print("Average closeness between different communities:")
+print(avg_closeness_between)
 ```
 
 ## Considerations that were impractical or not possible:
@@ -352,3 +388,5 @@ We were unable to get datasets where we could find the time of each collab betwe
 With greater time, more access to Spotify APIs, we would be able to obtain time of each collaboration using the artists' ids, matching the name of the album/single (that the artists collaborated on) to the year that the particular album/single was released.
 
 Then we could make comparisons between the follower count of each of the artists before and after the collaboration was done. This could be done with networkDynamic package and viewing the network before and after each new edge is formed between 2 artists.
+
+We were also unable to do proper regression on node attributes as a function of centrality measures. We did some basic analysis.
